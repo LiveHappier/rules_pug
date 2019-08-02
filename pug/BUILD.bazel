@@ -1,0 +1,18 @@
+package(default_visibility = ["//visibility:public"])
+
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
+
+exports_files([
+    "pug.bzl",
+    "pug_repositories.bzl",
+])
+
+# Executable for the pug_binary rule
+nodejs_binary(
+    name = "pug",
+    entry_point = "pug.js",
+    install_source_map_support = False,
+    data = [
+        "@build_bazel_rules_pug_deps//pug",
+    ],
+)
