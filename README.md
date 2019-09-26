@@ -16,9 +16,9 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 git_repository(
     name = "rules_pug",
-    commit = "43f7048cb3be3fa06fc43fcce1c871ed57991414",
+    commit = "f70594cb852a402266ebc4fd0881e773fbab63cc",
     remote = "https://github.com/LiveHappier/rules_pug.git",
-    shallow_since = "1564736978 +0200"
+    shallow_since = "1569509903 +0200"
 )
 
 # Setup the rules_pug toolchain
