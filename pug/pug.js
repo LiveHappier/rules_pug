@@ -17,8 +17,6 @@ fs.open(outFile, "w", function(err, fd) {
 
   fs.write(fd, buffer, 0, buffer.length, null, function(err) {
     if (err) throw "error writing file: " + err;
-    fs.close(fd, function() {
-      console.log("file written");
-    });
+    fs.close(fd, function(){});
   });
 });
