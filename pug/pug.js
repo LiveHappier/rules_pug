@@ -4,6 +4,7 @@ const fs = require("fs");
 const params = process.argv.slice(2);
 const src = params[0];
 const outFile = params[1];
+
 // Compile the source code
 const compiledFunction = pug.compileFile(src);
 const data = compiledFunction();
@@ -16,8 +17,6 @@ fs.open(outFile, "w", function(err, fd) {
 
   fs.write(fd, buffer, 0, buffer.length, null, function(err) {
     if (err) throw "error writing file: " + err;
-    fs.close(fd, function() {
-      console.log("file written");
-    });
+    fs.close(fd, function(){});
   });
 });
