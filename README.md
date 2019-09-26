@@ -12,13 +12,13 @@ rules_pug is a simple set of Bazel rules for building Pug files.
 
 in `WORKSPACE`:
 ```
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-git_repository(
+http_archive(
     name = "rules_pug",
-    commit = "f70594cb852a402266ebc4fd0881e773fbab63cc",
-    remote = "https://github.com/LiveHappier/rules_pug.git",
-    shallow_since = "1569509903 +0200"
+    url = "https://github.com/LiveHappier/rules_pug/archive/v0.2.tar.gz",
+    strip_prefix = "rules_pug-0.2",
+    sha256 = "878a2ea0129f718900af05e0303c523806a0d0de19969907a51c1a7994fc200e"
 )
 
 # Setup the rules_pug toolchain
