@@ -24,36 +24,47 @@ pug library.
 PugInfo = provider(
     doc = "Collects files from pug_library for use in downstream pug_binary",
     fields = {
-        "transitive_sources": "Pug sources for this target and its dependencies",
+        "sources": "Pug sources for this target and its dependencies",
     },
 )
 
-def _collect_transitive_sources(srcs, deps):
-    "Pug compilation requires all transitive .pug source files"
+def _collect_deps(srcs, deps):
+    """Obtain the source file for a target and its dependencies
+    note: Dependencies are not compiled with pug, so we use the DefaultInfo provider
+
+    Args:
+      srcs: a list of source files
+      deps: a list of targets that are direct dependencies
+
+    Returns:
+      a collection of all the needed sources
+    """
     return depset(
         srcs,
-        transitive = [dep[PugInfo].transitive_sources for dep in deps],
-        # Provide .pug sources from dependencies first
+        transitive = [dep[DefaultInfo].files for dep in deps],
         order = "postorder",
     )
 
 def _pug_library_impl(ctx):
     """pug_library collects all transitive sources for given srcs and deps.
+
     It doesn't execute any actions.
+
     Args:
       ctx: The Bazel build context
+
     Returns:
       The pug_library rule.
     """
-    transitive_sources = _collect_transitive_sources(
+    source_files = _collect_deps(
         ctx.files.srcs,
         ctx.attr.deps,
     )
     return [
-        PugInfo(transitive_sources = transitive_sources),
+        PugInfo(sources = source_files),
         DefaultInfo(
-            files = transitive_sources,
-            runfiles = ctx.runfiles(transitive_files = transitive_sources),
+            files = source_files,
+            runfiles = ctx.runfiles(sources = source_files),
         ),
     ]
 
@@ -61,27 +72,16 @@ def _run_pug(ctx, input, html_output):
     """run_pug performs an action to compile a single Pug file into HTML."""
 
     # The Pug CLI expects inputs like
-    # pug <flags> <input_filename> <output_filename>
+    # pug <input_filename> <output_filename>
     args = ctx.actions.args()
 
-    # Flags (see https://github.com/sass/dart-sass/blob/master/lib/src/executable/options.dart)
-    # args.add_joined(["--style", ctx.attr.output_style], join_with = "=")
-
-    # Sources for compilation may exist in the source tree, in bazel-bin, or bazel-genfiles.
-    #for prefix in [".", ctx.var["BINDIR"], ctx.var["GENDIR"]]:
-    #    args.add("--basedir=%s/" % prefix)
-    #    for include_path in ctx.attr.include_paths:
-    #        args.add("--basedir=%s/%s" % (prefix, include_path))
-
     # Last arguments are input and output paths
-    # Note that the sourcemap is implicitly written to a path the same as the
-    # html with the added .map extension.
     args.add_all([input.path, html_output.path])
 
     ctx.actions.run(
         mnemonic = "PugCompiler",
         executable = ctx.executable.compiler,
-        inputs = _collect_transitive_sources([input], ctx.attr.deps),
+        inputs = _collect_deps([input], ctx.attr.deps),
         tools = [ctx.executable.compiler],
         arguments = [args],
         outputs = [html_output],
@@ -97,10 +97,12 @@ def _pug_binary_impl(ctx):
 def _pug_binary_outputs(src, output_name, output_dir):
     """Get map of pug_binary outputs, including generated html.
     Note that the arguments to this function are named after attributes on the rule.
+
     Args:
       src: The rule's `src` attribute
       output_name: The rule's `output_name` attribute
       output_dir: The rule's `output_dir` attribute
+
     Returns:
       Outputs for the pug_binary
     """
@@ -121,9 +123,9 @@ def _strip_extension(path):
     return ".".join(components)
 
 pug_deps_attr = attr.label_list(
-    doc = "Pug_library targets to include in the compilation",
-    providers = [PugInfo],
-    allow_files = False,
+    providers = [DefaultInfo],
+    doc = "pug_library targets to include in the compilation",
+    allow_files = True,
 )
 
 pug_library = rule(
@@ -176,69 +178,4 @@ pug_binary = rule(
     implementation = _pug_binary_impl,
     attrs = _pug_binary_attrs,
     outputs = _pug_binary_outputs,
-)
-
-def _multi_pug_binary_impl(ctx):
-  """multi_pug_binary accepts a list of sources and compile all in one pass.
-  Args:
-    ctx: The Bazel build context
-  Returns:
-    The multi_pug_binary rule.
-  """
-
-  inputs = ctx.files.srcs
-  outputs = []
-  # Every non-partial Pug file will produce one HTML output file and,
-  # optionally, one sourcemap file.
-  for f in inputs:
-    # Pug partial files (prefixed with an underscore) do not produce any
-    # outputs.
-    if f.basename.startswith("_"):
-      continue
-    name = _strip_extension(f.basename)
-    outputs.append(ctx.actions.declare_file(
-      name + ".html",
-      sibling = f,
-    ))
-
-  # Use the package directory as the compilation root given to the Pug compiler
-  root_dir = ctx.label.package
-
-  # Declare arguments passed through to the Sass compiler.
-  # Start with flags and then expected program arguments.
-  args = ctx.actions.args()
-  #args.add("--style", ctx.attr.output_style)
-  args.add("--basedir", root_dir)
-
-  args.add(root_dir + ":" + ctx.bin_dir.path + '/' + root_dir)
-
-  if inputs:
-    ctx.actions.run(
-        inputs = inputs,
-        outputs = outputs,
-        executable = ctx.executable.compiler,
-        arguments = [args],
-        mnemonic = "PugCompiler",
-        progress_message = "Compiling Pug",
-    )
-
-  return [DefaultInfo(files = depset(outputs))]
-
-multi_pug_binary = rule(
-  implementation = _multi_pug_binary_impl,
-  attrs = {
-    "srcs": attr.label_list(
-      doc = "A list of pug files and associated assets to compile",
-      allow_files = _ALLOWED_SRC_FILE_EXTENSIONS,
-      allow_empty = True,
-      mandatory = True,
-    ),
-
-    "compiler": attr.label(
-      doc = _COMPILER_ATTR_DOC,
-      default = Label("//pug"),
-      executable = True,
-      cfg = "host",
-    ),
-  }
 )

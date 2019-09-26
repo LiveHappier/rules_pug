@@ -4,6 +4,7 @@ const fs = require("fs");
 const params = process.argv.slice(2);
 const src = params[0];
 const outFile = params[1];
+
 // Compile the source code
 const compiledFunction = pug.compileFile(src);
 const data = compiledFunction();

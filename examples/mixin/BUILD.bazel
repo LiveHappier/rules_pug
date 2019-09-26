@@ -1,0 +1,19 @@
+package(default_visibility = ["//visibility:public"])
+
+load("@rules_pug//:defs.bzl", "pug_binary")
+
+filegroup(
+    name = "mixin_resource",
+    srcs = glob(
+        ["subdir/*.pug"],
+    )
+)
+
+pug_binary(
+    name = "mixin",
+    src = "main.pug",
+    deps = [
+        "_mixin_file.pug",
+        ":mixin_resource"
+    ],
+)
