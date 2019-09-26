@@ -14,14 +14,3 @@ rules_pug_dev_dependencies()
 
 load("//:defs.bzl", "pug_repositories")
 pug_repositories()
-
-#############################################
-# Required dependencies for docs generation
-#############################################
-
-load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_toolchains")
-go_rules_dependencies()
-go_register_toolchains()
-
-load("@io_bazel_skydoc//skylark:skylark.bzl", "skydoc_repositories")
-skydoc_repositories()

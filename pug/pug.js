@@ -7,7 +7,7 @@ const outFile = params[1];
 // Compile the source code
 const compiledFunction = pug.compileFile(src);
 const data = compiledFunction();
-var buffer = new Buffer(data);
+const buffer = Buffer.from(data);
 
 fs.open(outFile, "w", function(err, fd) {
   if (err) {
