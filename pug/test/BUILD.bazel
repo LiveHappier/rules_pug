@@ -1,0 +1,3 @@
+load(":pug_rule_test.bzl", "pug_rule_test")
+
+pug_rule_test("//examples")

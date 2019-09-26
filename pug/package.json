@@ -1,6 +1,5 @@
 {
   "devDependencies": {
-    "pug": "2.0.4",
-    "sass": "latest"
+    "pug": "2.0.4"
   }
 }
