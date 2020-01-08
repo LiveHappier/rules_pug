@@ -1,6 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
-load("@rules_pug//:defs.bzl", "pug_binary")
+load("@rules_pug//:index.bzl", "pug_binary")
 
 filegroup(
     name = "mixin_resource",
