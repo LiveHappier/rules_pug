@@ -12,5 +12,5 @@ load("//:package.bzl", "rules_pug_dependencies", "rules_pug_dev_dependencies")
 rules_pug_dependencies()
 rules_pug_dev_dependencies()
 
-load("//:defs.bzl", "pug_repositories")
+load("//:index.bzl", "pug_repositories")
 pug_repositories()

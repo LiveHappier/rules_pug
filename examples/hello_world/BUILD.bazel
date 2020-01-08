@@ -1,6 +1,6 @@
 package(default_visibility = ["//visibility:public"])
 
-load("//:defs.bzl", "pug_binary")
+load("//:index.bzl", "pug_binary")
 
 pug_binary(
     name = "hello_world",
