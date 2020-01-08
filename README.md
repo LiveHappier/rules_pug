@@ -16,9 +16,9 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
     name = "rules_pug",
-    url = "https://github.com/LiveHappier/rules_pug/archive/v0.2.tar.gz",
-    strip_prefix = "rules_pug-0.2",
-    sha256 = "878a2ea0129f718900af05e0303c523806a0d0de19969907a51c1a7994fc200e"
+    url = "https://github.com/LiveHappier/rules_pug/archive/v0.3.tar.gz",
+    strip_prefix = "rules_pug-0.3",
+    sha256 = "35221e0704d32ce27abdf0a747bfb1d23ef6693c73f6db5a58c353d999138dbc"
 )
 
 # Setup the rules_pug toolchain
